@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "name": "github-guestbook",
+  "alias": "github-guestbook.now.sh",
+  "builds": [
+    { "src": "api/**/*.js", "use": "@now/node" },
+    { "src": "next.config.js", "use": "@now/next" }
+  ],
+  "routes": [
+    {
+      "src": "/api/auth/github",
+      "dest": "api/auth/github.js"
+    },
+    {
+      "src": "/api/auth/sign",
+      "dest": "api/auth/sign.js"
+    }
+  ],
+  "env": {
+    "GG_MYSQL_HOST": "@gg_mysql_host",
+    "GG_MYSQL_USER": "@gg_mysql_user",
+    "GG_MYSQL_PASSWORD": "@gg_mysql_password",
+    "GG_MYSQL_DATABASE": "@gg_mysql_database",
+    "GG_ID": "@gg_id",
+    "GG_SECRET": "@gg_secret"
+  }
+}
