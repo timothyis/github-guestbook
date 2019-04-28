@@ -3,7 +3,7 @@ import { parseCookies, setCookie, destroyCookie } from 'nookies';
 import Head from 'next/head';
 import Link from 'next/link';
 
-function HomePage({ baseURL, guestbook, token }) {
+function HomePage({ baseURL, guestbook, login, token }) {
   return (
     <>
       <Head>
@@ -22,12 +22,12 @@ function HomePage({ baseURL, guestbook, token }) {
           </button>
         </a>
       </Link>
-      <Link href={`${baseURL}/logout`}>
+      <Link href={`${baseURL}/?token="logout"`}>
         <a>
           <button>Logout</button>
         </a>
       </Link>
-      <h2>Signatures</h2>
+      <h2>Hello, {login}</h2>
       <ul>
         {guestbook.length >= 1 &&
           guestbook.map(g => (
@@ -83,7 +83,7 @@ HomePage.getInitialProps = async ctx => {
     : location.protocol;
   const host = req ? req.headers['x-forwarded-host'] : location.host;
   const baseURL = `${protocol}//${host}`;
-  // const request = `${baseURL}/api/guestbook`;
+  // const user = `${baseURL}/api/guestbook`;
   // const res = await fetch(request);
   // const { guestbook } = await res.json();
   // return { guestbook, host };
@@ -99,7 +99,8 @@ HomePage.getInitialProps = async ctx => {
     token = query.token;
   }
   const guestbook = [];
-  return { baseURL, guestbook, token };
+  const { login } = query;
+  return { baseURL, guestbook, login, token };
 };
 
 export default HomePage;
