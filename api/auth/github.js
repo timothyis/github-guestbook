@@ -35,7 +35,7 @@ module.exports = async (req, res) => {
     `);
   }
   res.writeHead(301, {
-    Location: `/?provider="github"&token=${access_token}&login=${login}`
+    Location: `/?provider=github&token=${access_token}&login=${login}&id=${id}`
   });
   res.end();
 };
