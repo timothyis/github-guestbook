@@ -1,7 +1,5 @@
 const url = require('url');
 const request = require('request-promise');
-const db = require('../../lib/db');
-const escape = require('sql-template-strings');
 
 module.exports = async (req, res) => {
   const { query } = url.parse(req.url, true);
@@ -9,13 +7,16 @@ module.exports = async (req, res) => {
     method: 'POST',
     uri: 'https://github.com/login/oauth/access_token',
     body: {
-      client_id: process.env.GG_ID,
-      client_secret: process.env.GG_SECRET,
+      client_id: process.env.GITHUB_CLIENT_ID,
+      client_secret: process.env.GITHUB_CLIENT_SECRET,
       code: query.code
     },
     json: true
-  });
-  const { id, avatar_url, login, html_url } = await request({
+  })
+
+  console.log('what')
+
+  const { id, login } = await request({
     uri: 'https://api.github.com/user',
     headers: {
       Authorization: `bearer ${access_token}`,
@@ -24,18 +25,8 @@ module.exports = async (req, res) => {
     json: true
   });
 
-  const existing = await db.query(escape`
-    SELECT * FROM guestbook WHERE id = ${id}
-`);
-  if (!existing.length) {
-    await db.query(escape`
-      INSERT INTO
-      guestbook (id, avatar, url, login, comment)
-      VALUES (${id}, ${avatar_url}, ${html_url}, ${login}, null)
-    `);
-  }
   res.writeHead(301, {
-    Location: `/?provider=github&token=${access_token}&login=${login}&id=${id}`
+    Location: `/?token=${access_token}&login=${login}&id=${id}`
   });
   res.end();
 };

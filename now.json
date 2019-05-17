@@ -7,21 +7,16 @@
     { "src": "next.config.js", "use": "@now/next" }
   ],
   "routes": [
+    { "src": "/_next/static/(?:[^/]+/pages|chunks|runtime)/.+", "headers": { "cache-control": "immutable,max-age=31536000" } },
+    { "src": "/(.*)", "headers": { "cache-control": "s-maxage=1,stale-while-revalidate" } },
     {
-      "src": "/api/auth/github",
-      "dest": "api/auth/github.js"
-    },
-    {
-      "src": "/api/auth/sign",
-      "dest": "api/auth/sign.js"
+      "src": "/api/auth/(.*)",
+      "dest": "api/auth/$1.js"
     }
   ],
   "env": {
-    "GG_MYSQL_HOST": "@gg_mysql_host",
-    "GG_MYSQL_USER": "@gg_mysql_user",
-    "GG_MYSQL_PASSWORD": "@gg_mysql_password",
-    "GG_MYSQL_DATABASE": "@gg_mysql_database",
-    "GG_ID": "@gg_id",
-    "GG_SECRET": "@gg_secret"
+    "MONGODB_URI": "@mongodb_uri",
+    "GITHUB_CLIENT_ID": "@github_client_id",
+    "GITHUB_CLIENT_SECRET": "@github_client_secret"
   }
 }
