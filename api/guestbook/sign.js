@@ -21,5 +21,8 @@ module.exports = async (req, res) => {
     await signaturesCollection.insertOne({id, user, comment, updated: new Date()})
   }
 
+  // Close the client connection
+  await client.close()
+
   res.end();
 };

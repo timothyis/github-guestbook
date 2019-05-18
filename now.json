@@ -1,14 +1,14 @@
 {
   "version": 2,
-  "name": "github-guestbook",
-  "alias": "github-guestbook.now.sh",
+  "name": "nextjs-node-js-mongodb-example",
+  "alias": "nextjs-nodejs-mongodb",
   "builds": [
     { "src": "api/**/*.js", "use": "@now/node" },
     { "src": "next.config.js", "use": "@now/next" }
   ],
   "routes": [
     { "src": "/_next/static/(?:[^/]+/pages|chunks|runtime)/.+", "headers": { "cache-control": "immutable,max-age=31536000" } },
-    { "src": "/(.*)", "headers": { "cache-control": "s-maxage=1,stale-while-revalidate" } },
+    { "src": "/(.*)", "headers": { "cache-control": "s-maxage=1,stale-while-revalidate" }, "continue": true },
     {
       "src": "/api/auth/(.*)",
       "dest": "api/auth/$1.js"

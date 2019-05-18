@@ -1,10 +1,13 @@
+// Dependencies
 import { useEffect } from 'react'
 import fetch from 'isomorphic-unfetch'
 import { parseCookies, setCookie, destroyCookie } from 'nookies'
-import { format } from 'date-fns'
 import Head from 'next/head'
 import Link from 'next/link'
 import { withRouter } from 'next/router'
+
+// Components
+import Comment from '../components/Comment'
 
 HomePage.getInitialProps = async ctx => {
   const { req, query } = ctx
@@ -52,10 +55,6 @@ HomePage.getInitialProps = async ctx => {
   return { baseURL, existing, guestbook, id, login, pageCount, token }
 }
 
-
-HomePage.componentDidMount = ({ router }) => {
-}
-
 function HomePage({
   baseURL,
   existing,
@@ -66,12 +65,13 @@ function HomePage({
   token,
   router
 }) {
-
-  console.log()
-
   useEffect(() => {
     if (router.query.token) {
       router.replace('/', '/', { shallow: true })
+    }
+
+    if (router.query.page > pageCount) {
+      router.replace({pathname: router.pathname, query: Object.assign(router.query, {page: pageCount})}, { shallow: true})
     }
   })
 
@@ -99,7 +99,25 @@ function HomePage({
     router.replace('/')
   }
 
-  const page = 1
+  const page = parseInt(router.query.page) || 1
+
+  const previousParams = {
+    ...(router.query.limit && { limit: router.query.limit }),
+    ...((page - 1 >= 1 && { page: page - 1}) || (page - 1 === 1 && null))
+  }
+
+  const nextParams = {
+    ...(router.query.limit && { limit: router.query.limit }),
+    ...(page + 1 <= pageCount && { page: page + 1})
+  }
+
+  const esc = encodeURIComponent;
+  const buildParams = (params) => Object.keys(params)
+      .map(k => esc(k) + '=' + esc(params[k]))
+      .join('&');
+
+  const nextPageLink = `/?${buildParams(nextParams)}`
+  const previousPageLink = `/?${buildParams(previousParams)}`
 
   return (
     <>
@@ -142,43 +160,32 @@ function HomePage({
       {guestbook.length >= 1 && (
         <>
           <h2>Signatures</h2>
-          <ul>
+          <div className="comments-list">
             {guestbook.map(g => (
-              <li key={g.id}>
-                <Link href={`https://github.com/${g.user}`}>
-                  <a className="comment">
-                    <img src={`https://avatars.githubusercontent.com/${g.user}`} />
-                  </a>
-                </Link>
-                <div className="description">
-                  <div className="row">
-                    <h4>{g.user}</h4>
-                    <div className="time">
-                      { format(Date.parse(g.updated), 'MMMM Do YYYY') }
-                    </div>
-                  </div>
-                  <div className="row">
-                    <p>{g.comment}</p>
-                    {id == g.id && (
-                      <button className="delete" onClick={handleDelete}>
-                        Delete
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </li>
+              <Comment
+                id={g.id}
+                loggedInId={id}
+                comment={g.comment}
+                user={g.user}
+                updated={g.updated}
+                key={g.id}
+                handleDelete={handleDelete}
+                />
             ))}
-          </ul>
+          </div>
         </>
       )}
+      {
+      }
+
       <nav>
-        {page > 1 && (
-          <Link prefetch href={`/?page=${page - 1}&limit=5`}>
+        {previousParams.page && (
+          <Link prefetch href={previousPageLink}>
             <a>Previous</a>
           </Link>
         )}
-        {page < pageCount && (
-          <Link prefetch href={`/?page=${page + 1}&limit=5`}>
+        {nextParams.page && (
+          <Link prefetch href={nextPageLink}>
             <a className="next">Next</a>
           </Link>
         )}
@@ -189,70 +196,30 @@ function HomePage({
           display: flex;
           justify-content: space-between;
         }
-        ul {
+
+        .comments-list {
           margin-left: 0;
         }
+
         ul li::before {
           content: '';
         }
-        li {
-          border-radius: 5px;
-          box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 12px;
-          display: grid;
-          grid-template-columns: 150px 1fr;
-          height: 150px;
-          margin-bottom: 24px;
-        }
-        a {
-          border-bottom: none;
-        }
-        a:hover {
-          border-bottom: none;
-        }
-        img {
-          border-bottom-left-radius: 5px;
-          border-top-left-radius: 5px;
-          height: 100%;
-          width: 100%;
-        }
-        h4 {
-          margin: 0;
-        }
+
         form {
           display: flex;
           width: 100%;
         }
+
         input {
           flex-grow: 100;
           margin-right: 20px;
         }
+
         nav {
           display: flex;
           justify-content: space-between;
         }
-        .comment {
-          width: 150px;
-        }
-        .description {
-          box-sizing: border-box;
-          color: #333;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          padding: 1em;
-        }
-        .row {
-          display: flex;
-          height: fit-content;
-          justify-content: space-between;
-          width: 100%;
-        }
-        .delete {
-          align-self: center;
-          height: 37px;
-          min-width: fit-content;
-          max-width: fit-content;
-        }
+
         .next {
           margin-left: auto;
         }

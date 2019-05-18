@@ -14,8 +14,6 @@ module.exports = async (req, res) => {
     json: true
   })
 
-  console.log('what')
-
   const { id, login } = await request({
     uri: 'https://api.github.com/user',
     headers: {
