@@ -4,7 +4,7 @@ function Comment({id, user, comment, updated, loggedInId, handleDelete, ...props
   return (
     <div className="comment" {...props}>
       <a href={`https://github.com/${user}`} className="avatar">
-        <img src={`https://avatars.githubusercontent.com/${user}`} />
+        <img src={`https://avatars.githubusercontent.com/${user}?size=128&v=4`} alt={`${user}'s avatar`}/>
       </a>
       <div className="comment-content">
         <div className="comment-header">
